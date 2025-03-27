@@ -40,7 +40,7 @@ class _First_page extends State<First_page>{
     else if(color_medium == Colors.green){
       return "medium";
     }
-    else if(color_medium == Colors.green){
+    else if(color_hard == Colors.green){
       return "hard";
     }
     return "";
@@ -182,7 +182,10 @@ class Main_screen extends StatefulWidget{
 
 class _Main_screen extends State<Main_screen>{
   late Timer timer_question;
+  int correct_answr = 0;
+  int incorrect_answr = 0;
   int seconds = 0;
+  int lvl_seconds = 0;
   static const String text_ans = "your answear";
   String user_answear = text_ans;
   var number1 = Random().nextInt(500);
@@ -194,9 +197,22 @@ class _Main_screen extends State<Main_screen>{
   var max_multeplse = 15;
   var max_divide = 400;
   var colors_list = [Colors.green,Colors.grey,Colors.grey,Colors.grey];
-  var symbols = ["+","-","*","/"];
+  var symbols = [];
 
   _Main_screen(bool plus,bool minus,bool multiplus,bool devide,String name_lvl){
+    if(plus == true){
+      symbols.add("+");
+    }
+    if(minus == true){
+      symbols.add("-");
+    }
+    if(multiplus == true){
+      symbols.add("*");
+    }
+    if(devide == true){
+      symbols.add("/");
+    }
+    print(name_lvl);
     if(name_lvl == "easy"){
       seconds = 25;
     }
@@ -206,6 +222,7 @@ class _Main_screen extends State<Main_screen>{
     else if(name_lvl == "hard"){
       seconds = 15;
     }
+    lvl_seconds = seconds;
     if(plus == true){
       colors_list[0] = Colors.green;
     }
@@ -230,6 +247,8 @@ class _Main_screen extends State<Main_screen>{
     else{
       colors_list[3] = Colors.grey;
     }
+    var index = Random().nextInt(symbols.length);
+    symbol = symbols[index];
   }
   @override
   void initState() {
@@ -240,10 +259,26 @@ class _Main_screen extends State<Main_screen>{
   void start_timer(){
     timer_question = Timer.periodic(Duration(seconds: 1), (timer){
       setState(() {
-        seconds++;
-      });
-    });
-  }
+        seconds--;
+        if(seconds == 0){
+          setState(() {
+            bg_color = Colors.red;  
+          });
+          
+          Future.delayed(Duration(seconds: 1),// delayed - задержка Duration промижуток времени 
+          (){
+            setState(() {
+            bg_color = Colors.black;  
+              next_question();
+              seconds = lvl_seconds;
+              incorrect_answr++;
+            });
+                });
+        
+              }
+            });
+          });
+    }
 
 void stop_timer(){
   timer_question.cancel();
@@ -312,7 +347,8 @@ void check_result(){
       setState(() {
       bg_color = Colors.black;  
         next_question();
-        seconds = 0;
+        seconds = lvl_seconds;
+        correct_answr++;
       });
   });
   }
@@ -410,8 +446,9 @@ void check_result(){
         
       ],),
       Row(
-        mainAxisAlignment: MainAxisAlignment.center,       
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,       
         children: [
+          Text("$incorrect_answr",style: TextStyle(color: Colors.red,fontSize: 35)),
           Container(
             padding: EdgeInsets.symmetric(
               vertical:50,
@@ -427,7 +464,8 @@ void check_result(){
               color: bg_color,
               borderRadius: BorderRadius.circular(15)
             ) ,     
-          )
+          ),
+          Text("$correct_answr",style: TextStyle(color: Colors.green,fontSize: 35)),
         ],
       ),
       Row(
